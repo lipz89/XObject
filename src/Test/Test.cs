@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using DynamicObject;
 
@@ -100,11 +101,65 @@ namespace Test
         }
 
         [Test]
-        public void TestDelegate()
+        public void TestArrayAndObject()
         {
-            Action a = () => { };
-            var f = a is Delegate;
-            Console.WriteLine(f);
+            var dic = new Dictionary<string, object> { { "ID", 3 }, { "Name", "Name" }, { "OO", new Dictionary<string, object> { { "ID3", 3 } } } };
+            ObjectX obj = ObjectX.From(dic);
+
+            var jss = new JsonSerializer();
+            jss.Converters.Add(new ObjectXJsonConverter());
+            var jo = JObject.FromObject(obj, jss);
+            var jo2 = JObject.FromObject(obj, jss);
+            Console.WriteLine(jo);
+            Console.WriteLine(jo2);
+            Console.WriteLine(obj);
+
+            var ox = ObjectX.From(jo);
+            Console.WriteLine(ox);
+            Console.WriteLine(obj.Equals(ox));
+
+
+            var a1 = new object[] { obj, ox };
+            var ja = JArray.FromObject(a1, jss);
+            var oa = ObjectX.From(ja);
+            Console.WriteLine(ja);
+            Console.WriteLine(oa);
+        }
+
+        [Test]
+        public void TestEqual()
+        {
+            dynamic o0 = new ObjectX();
+            var h0 = o0.GetHashCode();
+            dynamic o01 = new ObjectX();
+            var h01 = o01.GetHashCode();
+            Console.WriteLine(h0);
+            Console.WriteLine(h01);
+            Console.WriteLine(o0.Equals(o01));
+            Console.WriteLine(object.Equals(o0, o01));
+
+
+            var dic = new Dictionary<string, object> { { "ID", 3 }, { "Name", "Name" }, { "AOO", new Dictionary<string, object> { { "ID3", 3 } } } };
+            dynamic obj = ObjectX.From(dic);
+
+            var dic2 = new Dictionary<string, object> { { "Name", "Name" }, { "ID", 3 }, { "AOO", new Dictionary<string, object> { { "ID3", 3 } } } };
+            dynamic obj2 = ObjectX.From(dic2);
+
+            Console.WriteLine("dic:" + dic.OrderBy(x => x.Key).SequenceEqual(dic2.OrderBy(x => x.Key)));
+
+            var h1 = obj.GetHashCode();
+            var h2 = obj2.GetHashCode();
+            obj2.NN2 = obj;
+            obj2.Self = obj2;
+            obj.Self = obj;
+            obj.NN2 = obj2;
+            Console.WriteLine(obj.GetHashCode());
+
+            Console.WriteLine(h1);
+            Console.WriteLine(h2);
+
+            Console.WriteLine(obj.Equals(obj2));
+            Console.WriteLine(object.Equals(obj, obj2));
         }
     }
 

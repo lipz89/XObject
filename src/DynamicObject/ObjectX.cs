@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,13 +11,17 @@ using Newtonsoft.Json.Linq;
 
 namespace DynamicObject
 {
-    public sealed class ObjectX : IDynamicMetaObjectProvider
+    public sealed class ObjectX : IDynamicMetaObjectProvider//, IEquatable<ObjectX>
     {
         internal IDictionary<string, object> Values { get; }
 
-        private ObjectX(IDictionary<string, object> values = null)
+        public ObjectX()
         {
             this.Values = new Dictionary<string, object>();
+        }
+
+        private ObjectX(IDictionary<string, object> values) : this()
+        {
             if (values == null)
             {
                 return;
@@ -96,6 +99,63 @@ namespace DynamicObject
             return Values.Keys;
         }
 
+        //public override int GetHashCode()
+        //{
+        //    var hashCode = this.GetType().GetHashCode();
+        //    foreach (var value in Values)
+        //    {
+        //        var ih = value.Key.GetHashCode();
+        //        if (value.Value != null)
+        //        {
+        //            ih ^= value.Value.GetHashCode();
+        //        }
+        //        hashCode ^= ih;
+        //    }
+        //    return hashCode;
+        //}
+
+        //public override bool Equals(object obj)
+        //{
+        //    return this.Equals(obj as ObjectX);
+        //}
+
+        //public bool Equals(ObjectX other)
+        //{
+        //    if (other == null)
+        //    {
+        //        return false;
+        //    }
+
+        //    if (this.GetHashCode() != other.GetHashCode())
+        //    {
+        //        return false;
+        //    }
+
+        //    if (this.Values.Count != other.Values.Count)
+        //    {
+        //        return false;
+        //    }
+
+        //    var k1 = this.Values.Keys.OrderBy(x => x);
+        //    var k2 = other.Values.Keys.OrderBy(x => x);
+        //    if (!k1.SequenceEqual(k2))
+        //    {
+        //        return false;
+        //    }
+
+        //    foreach (var k in k1)
+        //    {
+        //        var v1 = this.Values[k];
+        //        var v2 = other.Values[k];
+        //        if (!object.Equals(v1, v2))
+        //        {
+        //            return false;
+        //        }
+        //    }
+
+        //    return true;
+        //}
+
         public override string ToString()
         {
             return this.Serialize();
@@ -103,7 +163,8 @@ namespace DynamicObject
 
         public string Serialize(Formatting formatting = Formatting.None)
         {
-            return this.Serialize(new JsonSerializerSettings(), formatting);
+            var settings = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+            return this.Serialize(settings, formatting);
         }
 
         public string Serialize(JsonSerializerSettings settings, Formatting formatting = Formatting.None)
