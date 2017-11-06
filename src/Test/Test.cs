@@ -14,6 +14,19 @@ namespace Test
     public class TestDynamicDto
     {
         [Test]
+        public void TestMethod()
+        {
+            dynamic  obj=new ObjectX();
+            obj.SetValue("Name","TestNmae");
+            var v = obj.GetValue("Name");
+            Console.WriteLine(v);
+            var v2 = obj.Name;
+            Console.WriteLine(v2);
+            var names = obj.GetNames();
+            Console.WriteLine(string.Join(",",names));
+        }
+
+        [Test]
         public void TestDynamicDic()
         {
             var model = new Model() { Name = "model", ID = 4 };

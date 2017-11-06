@@ -56,17 +56,7 @@ namespace DynamicObject
 
             return null;
         }
-
-        public T GetValueOrDefault<T>(string name)
-        {
-            if (Values.ContainsKey(name))
-            {
-                return (T)Values[name];
-            }
-
-            return default(T);
-        }
-
+        
         public bool TryGetValue<T>(string name, out T value)
         {
             try
